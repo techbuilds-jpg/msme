@@ -4,10 +4,12 @@ import { useCurrentBusiness } from '@/features/business/BusinessProvider'
 import { AuditLogPanel } from './AuditLogPanel'
 import { BusinessProfilePanel } from './BusinessProfilePanel'
 import { CategoriesPanel } from './CategoriesPanel'
+import { DataExportPanel } from './DataExportPanel'
 import { PreferencesPanel } from './PreferencesPanel'
+import { SupportAccessPanel } from './SupportAccessPanel'
 import { TeamPanel } from './TeamPanel'
 
-type Tab = 'business' | 'team' | 'preferences' | 'categories' | 'audit'
+type Tab = 'business' | 'team' | 'preferences' | 'categories' | 'export' | 'support' | 'audit'
 
 export function SettingsPage() {
   const { can, writable } = useCurrentBusiness()
@@ -17,6 +19,8 @@ export function SettingsPage() {
     ...(can('team.manage') ? [{ value: 'team' as Tab, label: 'Team & permissions' }] : []),
     ...(can('settings.manage') ? [{ value: 'preferences' as Tab, label: 'Preferences' }] : []),
     ...(can('expenses.manage') ? [{ value: 'categories' as Tab, label: 'Expense categories' }] : []),
+    ...(can('reports.export') ? [{ value: 'export' as Tab, label: 'Data export' }] : []),
+    ...(can('settings.manage') ? [{ value: 'support' as Tab, label: 'Support access' }] : []),
     ...(can('settings.manage') ? [{ value: 'audit' as Tab, label: 'Audit log' }] : []),
   ]
   const tab = tabs.find((t) => t.value === params.get('tab'))?.value ?? 'business'
@@ -30,6 +34,8 @@ export function SettingsPage() {
       {tab === 'team' && <TeamPanel />}
       {tab === 'preferences' && <PreferencesPanel />}
       {tab === 'categories' && <CategoriesPanel />}
+      {tab === 'export' && <DataExportPanel />}
+      {tab === 'support' && <SupportAccessPanel />}
       {tab === 'audit' && <AuditLogPanel />}
     </>
   )

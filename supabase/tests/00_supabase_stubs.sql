@@ -13,7 +13,9 @@ create table auth.users (
   id uuid primary key default gen_random_uuid(),
   email text unique,
   email_confirmed_at timestamptz,
-  raw_user_meta_data jsonb default '{}'
+  raw_user_meta_data jsonb default '{}',
+  is_anonymous boolean not null default false,
+  created_at timestamptz not null default now()
 );
 create function auth.uid() returns uuid language sql stable as $$
   select nullif(coalesce(current_setting('request.jwt.claim.sub', true), current_setting('request.jwt.claims', true)::jsonb ->> 'sub'), '')::uuid
