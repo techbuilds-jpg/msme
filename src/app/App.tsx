@@ -9,14 +9,18 @@ import { OnboardingPage } from '@/features/business/OnboardingPage'
 import { SelectBusinessPage } from '@/features/business/SelectBusinessPage'
 import { CustomerDetailPage } from '@/features/customers/CustomerDetailPage'
 import { CustomersPage } from '@/features/customers/CustomersPage'
+import { EmployeeDetailPage } from '@/features/employees/EmployeeDetailPage'
+import { EmployeesPage } from '@/features/employees/EmployeesPage'
 import { ExpensesPage } from '@/features/expenses/ExpensesPage'
 import { OrderDetailPage } from '@/features/orders/OrderDetailPage'
 import { OrderFormPage } from '@/features/orders/OrderFormPage'
 import { OrdersPage } from '@/features/orders/OrdersPage'
 import { OverviewPage } from '@/features/overview/OverviewPage'
+import { ReportsPage } from '@/features/reports/ReportsPage'
 import { NewSalePage } from '@/features/sales/NewSalePage'
 import { SaleDetailPage } from '@/features/sales/SaleDetailPage'
 import { SalesPage } from '@/features/sales/SalesPage'
+import { SettingsPage } from '@/features/settings/SettingsPage'
 import { NotBuiltYet } from '@/features/placeholder/NotBuiltYet'
 import { PrivacyPage } from '@/features/placeholder/PrivacyPage'
 import { supabaseConfigured } from '@/lib/supabase'
@@ -59,9 +63,10 @@ export default function App() {
                   <Route path="customers" element={<CustomersPage />} />
                   <Route path="customers/:id" element={<CustomerDetailPage />} />
                   <Route path="expenses" element={<ExpensesPage />} />
-                  <Route path="employees" element={<NotBuiltYet title="Employees" phase={3} />} />
-                  <Route path="reports" element={<NotBuiltYet title="Reports" phase={3} />} />
-                  <Route path="settings" element={<NotBuiltYet title="Settings" phase={3} />} />
+                  <Route path="employees" element={<EmployeesPage />} />
+                  <Route path="employees/:id" element={<EmployeeDetailPage />} />
+                  <Route path="reports" element={<ReportsPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route element={<RequirePlatformAdmin />}>
                     <Route path="admin" element={<NotBuiltYet title="Platform administration" phase={4} />} />

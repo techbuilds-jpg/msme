@@ -44,8 +44,21 @@ Legend: ✅ done and tested · 🟡 done, not yet tested end-to-end in the brows
        (needs a signed-in test account, see the Phase 2 note in the README of this checklist)
 
 ## Phase 3 — Business administration
-- ⬜ Employees directory & profiles · ⬜ Team: invite, roles, permission grants UI · ⬜ Settings (business profile, modules, categories)
-- ⬜ Reports + CSV export (audited) · ⬜ Audit log viewer
+- ✅ Database: `report_data` (7 reports, each needing reports.view plus the data's own permission, 5,000-row cap),
+     `log_export` (needs reports.export, rate-limited, audited), module/KPI validation on settings, order/sale
+     numbering that skips numbers already used after a prefix change (migration 7, applied remotely)
+- ✅ SQL tests: 19 more assertions (149 total) incl. permission splits (reports.view without sales.view), export
+     refusal, other-tenant refusal; live smoke test on Supabase (rolled back)
+- ✅ CSV helper unit-tested (escaping, formula-injection guard, numbers stay numeric)
+- 🟡 Employees: directory (current / former), add/edit, profile with app-access role, assigned orders, recent activity
+- 🟡 Settings → Team & permissions: members with roles and extra permissions, invite (copyable one-time link),
+     revoke, deactivate/reactivate, role matrix; owner-only permission grants, managers limited to employees
+- 🟡 Settings → Business profile, Preferences (modules, dashboard figures + order, numbering prefixes, discount limit),
+     Expense categories (rename / hide / add), Audit log (filters, paging, actor names, raw details)
+- 🟡 Reports: sales summary, collections, receivables (with age), expense breakdown, orders by status, employee
+     assignments (with overdue), customer transaction history; date filter, totals, CSV export (logged first)
+     — 🟡 = built, type-checked and backed by tested database functions; not yet clicked through in a browser
+- Note: export permission controls the *download* and is audited; anyone who can view a report can still read it on screen.
 
 ## Phase 4 — Trial & demo
 - ⬜ Contact-us / consultation request, upgrade interest · ⬜ Demo sandbox (anonymous sign-in, seeded, auto-deleted by pg_cron)
