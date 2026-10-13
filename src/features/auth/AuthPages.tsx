@@ -23,6 +23,8 @@ export function LoginPage() {
   const location = useLocation()
   const next = safeNext(new URLSearchParams(location.search).get('next'))
   const [error, setError] = useState<string | null>(null)
+  const [unverified, setUnverified] = useState<string | null>(null)
+  const [resend, setResend] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle')
   const schema = z.object({ email, password: z.string().min(1, 'Enter your password') })
   const { register, handleSubmit, formState } = useForm({ resolver: zodResolver(schema) })
 
@@ -30,18 +32,45 @@ export function LoginPage() {
 
   const onSubmit = handleSubmit(async (v) => {
     setError(null)
+    setUnverified(null)
+    setResend('idle')
     const { error: e } = await supabase.auth.signInWithPassword({ email: v.email, password: v.password })
     if (e) {
-      setError(e.message === 'Email not confirmed' ? 'Please verify your email first. Check your inbox for the link.' : 'Incorrect email or password.')
+      if (e.code === 'email_not_confirmed') {
+        setUnverified(v.email)
+        setError('Please verify your email first. Open the link we emailed you (check spam too), then sign in.')
+      } else {
+        setError('Incorrect email or password.')
+      }
       return
     }
     navigate(next, { replace: true })
   })
 
+  const resendVerification = async () => {
+    if (!unverified) return
+    setResend('sending')
+    const { error: e } = await supabase.auth.resend({
+      type: 'signup', email: unverified, options: { emailRedirectTo: `${window.location.origin}${next}` },
+    })
+    setResend(e ? 'failed' : 'sent')
+  }
+
   return (
     <AuthLayout title="Sign in" footer={<>No account yet? <Link className="font-medium text-navy-500 underline" to={`/register${location.search}`}>Start a free trial</Link></>}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        {error && <Alert tone="error">{error}</Alert>}
+        {error && (
+          <Alert tone="error">
+            {error}
+            {unverified && resend !== 'sent' && (
+              <Button variant="outline" size="sm" className="mt-2" loading={resend === 'sending'} onClick={() => void resendVerification()}>
+                Resend verification email
+              </Button>
+            )}
+            {resend === 'failed' && <p className="mt-2">Could not resend right now (emails are rate-limited). Try again in a few minutes.</p>}
+          </Alert>
+        )}
+        {resend === 'sent' && <Alert tone="success">Verification email sent to {unverified}.</Alert>}
         <Input label="Email" type="email" autoComplete="email" required error={formState.errors.email?.message} {...register('email')} />
         <Input label="Password" type="password" autoComplete="current-password" required error={formState.errors.password?.message} {...register('password')} />
         <Button type="submit" className="w-full" loading={formState.isSubmitting}>Sign in</Button>
