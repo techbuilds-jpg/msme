@@ -17,10 +17,12 @@ Legend: ✅ done and tested · 🟡 done, not yet tested end-to-end in the brows
 - ✅ Live smoke test on Supabase (rolled back): onboarding + cross-tenant denial
 - ✅ React app scaffold, design tokens, reusable UI kit, navy sidebar shell (responsive, skip link, keyboard nav)
 - ✅ Register / login / forgot password pages; validation and failed sign-in verified in the browser
-- 🟡 Email verification, password reset, profile, onboarding, business picker, accept-invite, overview (trial status)
-     — built and type-checked, backed by tested RPCs; needs a real sign-up to verify (see SETUP.md step 2)
+- ✅ Real sign-up → email verification → onboarding → overview, verified with the owner's account (2026-10-13)
+- 🟡 Password reset, profile edit, resend verification, business picker, accept-invite — built and type-checked,
+     backed by tested RPCs; not yet clicked through in the browser
 - ✅ Netlify config: SPA redirect, security headers + CSP
-- ⬜ GitHub repo + Netlify site (needs your accounts)
+- ✅ GitHub repo: https://github.com/techbuilds-jpg/msme
+- ⬜ Netlify site
 
 ## Phase 2 — Core application
 - ⬜ Dashboard KPIs (sales, collected, receivables, expenses, net cash movement, orders) with date filters
