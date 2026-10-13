@@ -7,7 +7,16 @@ import { AcceptInvitePage } from '@/features/business/AcceptInvitePage'
 import { BusinessProvider } from '@/features/business/BusinessProvider'
 import { OnboardingPage } from '@/features/business/OnboardingPage'
 import { SelectBusinessPage } from '@/features/business/SelectBusinessPage'
+import { CustomerDetailPage } from '@/features/customers/CustomerDetailPage'
+import { CustomersPage } from '@/features/customers/CustomersPage'
+import { ExpensesPage } from '@/features/expenses/ExpensesPage'
+import { OrderDetailPage } from '@/features/orders/OrderDetailPage'
+import { OrderFormPage } from '@/features/orders/OrderFormPage'
+import { OrdersPage } from '@/features/orders/OrdersPage'
 import { OverviewPage } from '@/features/overview/OverviewPage'
+import { NewSalePage } from '@/features/sales/NewSalePage'
+import { SaleDetailPage } from '@/features/sales/SaleDetailPage'
+import { SalesPage } from '@/features/sales/SalesPage'
 import { NotBuiltYet } from '@/features/placeholder/NotBuiltYet'
 import { PrivacyPage } from '@/features/placeholder/PrivacyPage'
 import { supabaseConfigured } from '@/lib/supabase'
@@ -40,10 +49,16 @@ export default function App() {
               <Route element={<RequireBusiness />}>
                 <Route element={<AppShell />}>
                   <Route index element={<OverviewPage />} />
-                  <Route path="sales" element={<NotBuiltYet title="Sales & Collections" phase={2} />} />
-                  <Route path="orders" element={<NotBuiltYet title="Orders & Operations" phase={2} />} />
-                  <Route path="customers" element={<NotBuiltYet title="Customers" phase={2} />} />
-                  <Route path="expenses" element={<NotBuiltYet title="Expenses" phase={2} />} />
+                  <Route path="sales" element={<SalesPage />} />
+                  <Route path="sales/new" element={<NewSalePage />} />
+                  <Route path="sales/:id" element={<SaleDetailPage />} />
+                  <Route path="orders" element={<OrdersPage />} />
+                  <Route path="orders/new" element={<OrderFormPage />} />
+                  <Route path="orders/:id" element={<OrderDetailPage />} />
+                  <Route path="orders/:id/edit" element={<OrderFormPage />} />
+                  <Route path="customers" element={<CustomersPage />} />
+                  <Route path="customers/:id" element={<CustomerDetailPage />} />
+                  <Route path="expenses" element={<ExpensesPage />} />
                   <Route path="employees" element={<NotBuiltYet title="Employees" phase={3} />} />
                   <Route path="reports" element={<NotBuiltYet title="Reports" phase={3} />} />
                   <Route path="settings" element={<NotBuiltYet title="Settings" phase={3} />} />

@@ -22,15 +22,26 @@ Legend: ✅ done and tested · 🟡 done, not yet tested end-to-end in the brows
      backed by tested RPCs; not yet clicked through in the browser
 - ✅ Netlify config: SPA redirect, security headers + CSP
 - ✅ GitHub repo: https://github.com/techbuilds-jpg/msme
-- ⬜ Netlify site
+- ✅ Netlify site: https://msme-platform.netlify.app (manual deploys for now; Git auto-deploy needs linking in Netlify UI)
 
 ## Phase 2 — Core application
-- ⬜ Dashboard KPIs (sales, collected, receivables, expenses, net cash movement, orders) with date filters
-- ⬜ Customers (list, search, add/edit, detail with orders, transactions, balance)
-- ⬜ Orders (RPCs save_order / change_order_status / add_order_note, detail page with activity log)
-- ⬜ Sales & payments (RPCs create_sale / record_payment / refund / void, idempotency keys)
-- ⬜ Expenses (+ private receipt storage bucket and policies, summaries)
-- ⬜ Catalogue of products/services
+- ✅ Database: `save_order`, `change_order_status`, `add_order_note`, `create_sale`, `record_payment` (payments and refunds),
+     `void_payment`, `void_sale`, `void_expense`, `dashboard_summary`, `expense_summary`, `customer_balances` view,
+     private `receipts` bucket with per-business storage policies (migrations 5–6, applied remotely)
+- ✅ SQL tests: 59 more assertions — numbering, totals, partial payments, idempotent retries, overpayment/over-refund,
+     voids, permissions per role, cross-tenant attempts on every RPC, dashboard figures, receipt isolation
+- ✅ Live smoke test on Supabase (rolled back): order → status → sale with upfront payment → payment → balance → dashboard
+- 🟡 Dashboard: KPIs ordered by category template, Today / This week / This month / Custom, sales vs collections trend
+     (+ table view), orders by status, recent transactions, empty state, refetch on tab focus
+- 🟡 Customers: list + search + status filter, add/edit, detail with orders, transaction history, outstanding balance
+- 🟡 Orders: list with status/assignee filters + search, create/edit with line items, detail with status control,
+     notes and chronological activity log; "Record sale" from an order
+- 🟡 Sales & collections: list with payment-status/date filters, new sale (price list, discount within limit, optional
+     upfront payment), detail with payments, refunds, voids (with reasons); price list (catalogue) tab
+- 🟡 Expenses: list with date/category filters, category summary, add/edit with private receipt upload, custom
+     categories, void with reason, signed short-lived receipt links
+     — 🟡 = built, type-checked and backed by tested database functions; not yet clicked through in a browser
+       (needs a signed-in test account, see the Phase 2 note in the README of this checklist)
 
 ## Phase 3 — Business administration
 - ⬜ Employees directory & profiles · ⬜ Team: invite, roles, permission grants UI · ⬜ Settings (business profile, modules, categories)

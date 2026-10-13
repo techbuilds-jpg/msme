@@ -29,3 +29,16 @@ It acts as different users (owner A, employee, manager, owner B, outsider, platf
 1. Register → verification email → sign in → onboarding form → Overview shows "14 days left", 0/100, 1/3 users.
 2. Try onboarding a second business with the same account: refused.
 3. Narrow the browser to phone width: the sidebar becomes a menu button and drawer.
+
+## Manual acceptance (Phase 2)
+Use a **separate test account and business** (e.g. a `+test` Gmail alias) so a real trial isn't filled with
+practice data; each order and sale counts toward the 100-transaction trial limit.
+1. Customers: add one, search for it, edit it.
+2. Orders: create an order with two lines for that customer, assign it, change status twice, add a note; the
+   activity log shows each step with your name.
+3. Sales: from the order, "Record sale" → items pre-filled → pay part now → detail shows Partially Paid and the
+   balance. Record the rest → Paid. Refund a little → Partially Paid. Void the refund (owner/manager) → Paid.
+4. Expenses: add one with a photo/PDF receipt, open the receipt, void another one with a reason.
+5. Overview: switch Today / This week / This month / Custom; figures match what you entered; "Net cash movement"
+   = collected − expenses.
+6. Sign in as an employee (invite one): sales and expense figures are hidden; orders and customers work.
