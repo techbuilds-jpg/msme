@@ -10,6 +10,7 @@ import { useAuth } from '@/features/auth/AuthProvider'
 import { errorMessage } from '@/components/ui'
 import { createBusiness } from './api'
 import { useBusiness } from './BusinessProvider'
+import { getPendingInvite } from '@/lib/pendingInvite'
 import { CATEGORY_LABELS, type BusinessCategory } from './types'
 
 const CATEGORY_HELP: Record<BusinessCategory, string> = {
@@ -50,6 +51,7 @@ export function OnboardingPage() {
   const category = watch('category')
 
   if (isAnonymous) return <Navigate to="/demo" replace />
+  if (getPendingInvite()) return <Navigate to="/invite" replace />
   // One trial business per account (also enforced by the database).
   if (profile?.trial_used_at && !isPlatformAdmin) {
     return (
@@ -75,6 +77,10 @@ export function OnboardingPage() {
 
   return (
     <AuthLayout title="Set up your business" subtitle="Your 14-day free trial starts when you finish this step.">
+      <Alert tone="info" className="mb-5">
+        <strong>Were you invited by your employer?</strong> Don't create a business here. Open the invitation link
+        they sent you while signed in with this account, and you'll join their business.
+      </Alert>
       <form onSubmit={onSubmit} className="space-y-5" noValidate>
         {error && <Alert tone="error">{error}</Alert>}
         <Input label="Business name" required error={formState.errors.name?.message} {...register('name')} />

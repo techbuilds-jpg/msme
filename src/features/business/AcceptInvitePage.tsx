@@ -6,24 +6,16 @@ import { useAuth } from '@/features/auth/AuthProvider'
 import { ROLE_LABELS } from '@/lib/permissions'
 import { acceptInvitation, previewInvitation, type InvitationPreview } from './api'
 import { useBusiness } from './BusinessProvider'
+import { clearPendingInvite, getPendingInvite, savePendingInvite } from '@/lib/pendingInvite'
 
-const PENDING_KEY = 'msme.pendingInvite'
-
-/**
- * Invitation links look like /invite#<token>. The token sits in the URL fragment so it is never sent to
- * any server or written to access logs. If the visitor still has to sign up, it is kept in sessionStorage.
- */
+/** Invitation links look like /invite#<token>; the fragment is never sent to a server or written to access logs. */
 function readToken(): string | null {
   const fromHash = window.location.hash.replace(/^#/, '')
-  try {
-    if (/^[a-f0-9]{64}$/.test(fromHash)) {
-      sessionStorage.setItem(PENDING_KEY, fromHash)
-      return fromHash
-    }
-    return sessionStorage.getItem(PENDING_KEY)
-  } catch {
-    return /^[a-f0-9]{64}$/.test(fromHash) ? fromHash : null
+  if (/^[a-f0-9]{64}$/.test(fromHash)) {
+    savePendingInvite(fromHash)
+    return fromHash
   }
+  return getPendingInvite()
 }
 
 export function AcceptInvitePage() {
@@ -60,7 +52,7 @@ export function AcceptInvitePage() {
     setError(null)
     try {
       const businessId = await acceptInvitation(token)
-      try { sessionStorage.removeItem(PENDING_KEY) } catch { /* ignore */ }
+      clearPendingInvite()
       select(businessId)
       await reload()
       navigate('/', { replace: true })
@@ -84,7 +76,10 @@ export function AcceptInvitePage() {
           {preview.status === 'pending' ? (
             <Button className="mt-5 w-full" loading={accepting} onClick={() => void accept()}>Accept invitation</Button>
           ) : (
-            <Alert tone="warning" className="mt-4">This invitation is {preview.status}. Ask for a new one.</Alert>
+            <>
+              <Alert tone="warning" className="mt-4">This invitation is {preview.status}. Ask for a new one.</Alert>
+              <Button variant="outline" className="mt-3 w-full" onClick={() => { clearPendingInvite(); navigate('/', { replace: true }) }}>Continue to the app</Button>
+            </>
           )}
           {session.user.email?.toLowerCase() !== preview.email && (
             <p className="mt-4 text-sm text-slate-600">
