@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Alert, Button, errorMessage } from '@/components/ui'
 import { AuthLayout } from '@/components/layout/AuthLayout'
+import { CAPTCHA_FAILED, CAPTCHA_MISSING, isCaptchaError, useCaptcha } from '@/components/shared/Turnstile'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { useBusiness } from '@/features/business/BusinessProvider'
 import { unwrap } from '@/lib/errors'
@@ -17,13 +18,18 @@ export function DemoPage() {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
+  const captcha = useCaptcha()
 
   const start = async () => {
-    setError(null); setStarting(true)
+    setError(null)
+    // The bot check only applies when a new anonymous session is created.
+    if (!session && captcha.missing) return setError(CAPTCHA_MISSING)
+    setStarting(true)
     try {
       if (!session) {
-        const { error: e } = await supabase.auth.signInAnonymously()
-        if (e) throw new Error(e.message.includes('disabled') ? 'The demo is not available right now. Please try again later.' : e.message)
+        const { error: e } = await supabase.auth.signInAnonymously({ options: { captchaToken: captcha.token ?? undefined } })
+        captcha.reset()
+        if (e) throw new Error(isCaptchaError(e) ? CAPTCHA_FAILED : e.message.includes('disabled') ? 'The demo is not available right now. Please try again later.' : e.message)
       }
       const id = unwrap(await supabase.rpc('start_demo')) as string
       select(id)
@@ -44,6 +50,7 @@ export function DemoPage() {
         <li>You can add and change anything. The demo is deleted automatically after 48 hours.</li>
       </ul>
       {error && <Alert tone="error" className="mb-4">{error}</Alert>}
+      {!session && <div className="mb-4">{captcha.widget}</div>}
       <Button className="w-full" loading={starting} onClick={() => void start()}>Open demo business</Button>
     </AuthLayout>
   )

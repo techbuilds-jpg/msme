@@ -5,6 +5,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { Alert, Button, Checkbox, Input } from '@/components/ui'
 import { AuthLayout } from '@/components/layout/AuthLayout'
+import { CAPTCHA_FAILED, CAPTCHA_MISSING, isCaptchaError, useCaptcha } from '@/components/shared/Turnstile'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './AuthProvider'
 
@@ -27,6 +28,7 @@ export function LoginPage() {
   const [resend, setResend] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle')
   const schema = z.object({ email, password: z.string().min(1, 'Enter your password') })
   const { register, handleSubmit, formState } = useForm({ resolver: zodResolver(schema) })
+  const captcha = useCaptcha()
 
   if (session) return <Navigate to={next} replace />
 
@@ -34,9 +36,13 @@ export function LoginPage() {
     setError(null)
     setUnverified(null)
     setResend('idle')
-    const { error: e } = await supabase.auth.signInWithPassword({ email: v.email, password: v.password })
+    if (captcha.missing) return setError(CAPTCHA_MISSING)
+    const { error: e } = await supabase.auth.signInWithPassword({ email: v.email, password: v.password, options: { captchaToken: captcha.token ?? undefined } })
+    captcha.reset()
     if (e) {
-      if (e.code === 'email_not_confirmed') {
+      if (isCaptchaError(e)) {
+        setError(CAPTCHA_FAILED)
+      } else if (e.code === 'email_not_confirmed') {
         setUnverified(v.email)
         setError('Please verify your email first. Open the link we emailed you (check spam too), then sign in.')
       } else {
@@ -49,10 +55,12 @@ export function LoginPage() {
 
   const resendVerification = async () => {
     if (!unverified) return
+    if (captcha.missing) return setError(`${CAPTCHA_MISSING} Then press "Resend" again.`)
     setResend('sending')
     const { error: e } = await supabase.auth.resend({
-      type: 'signup', email: unverified, options: { emailRedirectTo: `${window.location.origin}${next}` },
+      type: 'signup', email: unverified, options: { emailRedirectTo: `${window.location.origin}${next}`, captchaToken: captcha.token ?? undefined },
     })
+    captcha.reset()
     setResend(e ? 'failed' : 'sent')
   }
 
@@ -73,6 +81,7 @@ export function LoginPage() {
         {resend === 'sent' && <Alert tone="success">Verification email sent to {unverified}.</Alert>}
         <Input label="Email" type="email" autoComplete="email" required error={formState.errors.email?.message} {...register('email')} />
         <Input label="Password" type="password" autoComplete="current-password" required error={formState.errors.password?.message} {...register('password')} />
+        {captcha.widget}
         <Button type="submit" className="w-full" loading={formState.isSubmitting}>Sign in</Button>
         <p className="text-center text-sm"><Link className="text-navy-500 underline" to="/forgot-password">Forgot password?</Link></p>
         <p className="border-t border-slate-100 pt-4 text-center text-sm">Just looking? <Link className="font-medium text-navy-500 underline" to="/demo">Try a demo with sample data</Link></p>
@@ -96,6 +105,7 @@ export function RegisterPage() {
     consent: z.literal(true, { error: 'Please agree to continue' }),
   }).refine((v) => v.password === v.confirm, { path: ['confirm'], message: 'Passwords do not match' })
   const { register, handleSubmit, formState } = useForm({ resolver: zodResolver(schema) })
+  const captcha = useCaptcha()
 
   if (session) return <Navigate to={next} replace />
   if (sentTo) {
@@ -109,13 +119,15 @@ export function RegisterPage() {
 
   const onSubmit = handleSubmit(async (v) => {
     setError(null)
+    if (captcha.missing) return setError(CAPTCHA_MISSING)
     const { error: e } = await supabase.auth.signUp({
       email: v.email,
       password: v.password,
-      options: { data: { full_name: v.full_name }, emailRedirectTo: `${window.location.origin}${next}` },
+      options: { data: { full_name: v.full_name }, emailRedirectTo: `${window.location.origin}${next}`, captchaToken: captcha.token ?? undefined },
     })
+    captcha.reset()
     if (e) {
-      setError(e.message)
+      setError(isCaptchaError(e) ? CAPTCHA_FAILED : e.message)
       return
     }
     setSentTo(v.email)
@@ -135,6 +147,7 @@ export function RegisterPage() {
           error={formState.errors.consent?.message}
           {...register('consent')}
         />
+        {captcha.widget}
         <Button type="submit" className="w-full" loading={formState.isSubmitting}>Create account</Button>
       </form>
     </AuthLayout>
@@ -146,12 +159,18 @@ export function ForgotPasswordPage() {
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { register, handleSubmit, formState } = useForm({ resolver: zodResolver(z.object({ email })) })
+  const captcha = useCaptcha()
 
   const onSubmit = handleSubmit(async (v) => {
     setError(null)
-    const { error: e } = await supabase.auth.resetPasswordForEmail(v.email, { redirectTo: `${window.location.origin}/reset-password` })
+    if (captcha.missing) return setError(CAPTCHA_MISSING)
+    const { error: e } = await supabase.auth.resetPasswordForEmail(v.email, {
+      redirectTo: `${window.location.origin}/reset-password`, captchaToken: captcha.token ?? undefined,
+    })
+    captcha.reset()
     // Same message whether or not the account exists, so the form cannot be used to discover accounts.
-    if (e && e.status === 429) setError('Too many requests. Please wait a few minutes.')
+    if (e && isCaptchaError(e)) setError(CAPTCHA_FAILED)
+    else if (e && e.status === 429) setError('Too many requests. Please wait a few minutes.')
     else setSent(true)
   })
 
@@ -163,6 +182,7 @@ export function ForgotPasswordPage() {
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           {error && <Alert tone="error">{error}</Alert>}
           <Input label="Email" type="email" autoComplete="email" required error={formState.errors.email?.message} {...register('email')} />
+          {captcha.widget}
           <Button type="submit" className="w-full" loading={formState.isSubmitting}>Send reset link</Button>
         </form>
       )}

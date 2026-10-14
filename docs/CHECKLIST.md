@@ -78,5 +78,11 @@ Legend: ✅ done and tested · 🟡 done, not yet tested end-to-end in the brows
      suspend, plan + limits + modules, all with reasons), inquiries, support access, app errors, admin audit, platform
      settings (trial defaults, retention, contact details)
 
+## Security add-on
+- ✅ Cloudflare Turnstile on sign-in, sign-up, forgot-password, resend-verification and demo (anonymous sign-in);
+     token passed to Supabase Auth as `captchaToken`, reset after every attempt; CSP allows challenges.cloudflare.com.
+     Verified in the browser: widget renders on all four pages, demo refuses to start without it.
+- ⬜ Turn on CAPTCHA in Supabase (needs the Turnstile secret key) — until then Supabase ignores the token
+
 ## Phase 5 — Testing & deployment
 - ⬜ Isolation tests against a Supabase branch through the REST API · ⬜ Responsive pass · ⬜ Production deploy

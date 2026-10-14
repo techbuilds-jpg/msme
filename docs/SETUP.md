@@ -15,9 +15,17 @@ Migrations in `supabase/migrations/` are already applied. For a new environment,
 > That's fine for testing with your own address. Before inviting real trial users, set up custom SMTP
 > (Auth → SMTP Settings); Resend or Brevo have free tiers.
 
-**Auth → Providers → Anonymous sign-ins**: turn **on** for the demo sandbox (`/demo`). Strongly recommended
-with it: **Auth → Attack Protection → CAPTCHA** (hCaptcha or Turnstile, both free) so bots can't create demos in bulk.
-Demos are also rate-limited in the database (3 per visitor per hour, 200 per hour overall) and deleted after 48 hours.
+**Auth → Providers → Anonymous sign-ins**: turn **on** for the demo sandbox (`/demo`). Demos are also rate-limited
+in the database (3 per visitor per hour, 200 per hour overall) and deleted after 48 hours.
+
+**Bot protection (Cloudflare Turnstile)** on sign-in, sign-up, forgot-password and the demo:
+1. Cloudflare dashboard → Turnstile → your widget → **Hostnames**: include `msme-platform.netlify.app` and `localhost`
+   (plus any custom domain later).
+2. Supabase → **Auth → Attack Protection → Enable CAPTCHA protection** → provider **Turnstile** → paste the widget's
+   **secret key** there (only there; it is never stored in this repo or in Netlify).
+3. The public **site key** is `VITE_TURNSTILE_SITE_KEY` (set in Netlify and `.env`).
+Order matters: deploy the app with the site key first (done), then switch CAPTCHA on in Supabase. With CAPTCHA on and
+no widget, sign-ins would fail; with the widget and CAPTCHA off, tokens are simply ignored.
 
 ## 2. First sign-up and platform admin
 1. `npm run dev`, open http://localhost:5173/register, and register with your own email.
@@ -32,6 +40,7 @@ Demos are also rate-limited in the database (3 per visitor per hour, 200 per hou
 |---|---|---|
 | `VITE_SUPABASE_URL` | `.env` locally, Netlify env vars | `https://oufamslcxfqmtwyuxyzo.supabase.co` |
 | `VITE_SUPABASE_ANON_KEY` | same | the **publishable** key (`sb_publishable_…`) from Project Settings → API |
+| `VITE_TURNSTILE_SITE_KEY` | same | Cloudflare Turnstile **site** key (public). Empty = no bot check (local dev) |
 
 The service-role key is **not** used anywhere and must never be added with a `VITE_` prefix.
 
