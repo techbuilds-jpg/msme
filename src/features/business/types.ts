@@ -11,6 +11,8 @@ export interface BusinessSummary {
   is_demo: boolean
   access_state: AccessState
   trial_ends_at: string
+  /** Opened under an owner-issued support grant (platform admins only; read-only). */
+  support_access: boolean
 }
 
 export interface Business {

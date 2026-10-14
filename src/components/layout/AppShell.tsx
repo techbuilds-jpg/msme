@@ -4,7 +4,7 @@ import {
   UserCircle, Users, X, type LucideIcon,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { PRODUCT_NAME } from '@/app/config'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { useCurrentBusiness } from '@/features/business/BusinessProvider'
@@ -35,10 +35,11 @@ export const NAV: NavItem[] = [
 ]
 
 export function AppShell() {
-  const { profile, isPlatformAdmin, signOut } = useAuth()
+  const { profile, isPlatformAdmin, isAnonymous, signOut } = useAuth()
   const { current, businesses, can } = useCurrentBusiness()
   const [open, setOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
   useEffect(() => setOpen(false), [location.pathname])
 
   const modules = new Set(current.settings.enabled_modules)
@@ -75,13 +76,22 @@ export function AppShell() {
             <Shield className="size-4" aria-hidden /> Platform admin
           </Link>
         )}
-        <Link to="/profile" className="flex items-center gap-3 rounded-md px-3 py-2 text-white/85 hover:bg-white/10">
-          <UserCircle className="size-4" aria-hidden />
-          <span className="truncate">{profile?.full_name || profile?.email || 'Profile'}</span>
-        </Link>
-        <button type="button" onClick={() => void signOut()} className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-white/85 hover:bg-white/10">
-          <LogOut className="size-4" aria-hidden /> Sign out
-        </button>
+        {isAnonymous ? (
+          <button type="button" onClick={() => void signOut().then(() => navigate('/register'))}
+            className="flex w-full items-center gap-3 rounded-md bg-white px-3 py-2 text-left font-medium text-navy-900 hover:bg-navy-100">
+            <UserCircle className="size-4" aria-hidden /> Start your own free trial
+          </button>
+        ) : (
+          <>
+            <Link to="/profile" className="flex items-center gap-3 rounded-md px-3 py-2 text-white/85 hover:bg-white/10">
+              <UserCircle className="size-4" aria-hidden />
+              <span className="truncate">{profile?.full_name || profile?.email || 'Profile'}</span>
+            </Link>
+            <button type="button" onClick={() => void signOut()} className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-white/85 hover:bg-white/10">
+              <LogOut className="size-4" aria-hidden /> Sign out
+            </button>
+          </>
+        )}
       </div>
     </nav>
   )

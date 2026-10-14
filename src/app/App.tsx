@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
+import { AdminPage } from '@/features/admin/AdminPage'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { ForgotPasswordPage, LoginPage, RegisterPage, ResetPasswordPage } from '@/features/auth/AuthPages'
 import { ProfilePage } from '@/features/auth/ProfilePage'
@@ -9,6 +10,7 @@ import { OnboardingPage } from '@/features/business/OnboardingPage'
 import { SelectBusinessPage } from '@/features/business/SelectBusinessPage'
 import { CustomerDetailPage } from '@/features/customers/CustomerDetailPage'
 import { CustomersPage } from '@/features/customers/CustomersPage'
+import { DemoPage } from '@/features/demo/DemoPage'
 import { EmployeeDetailPage } from '@/features/employees/EmployeeDetailPage'
 import { EmployeesPage } from '@/features/employees/EmployeesPage'
 import { ExpensesPage } from '@/features/expenses/ExpensesPage'
@@ -21,7 +23,6 @@ import { NewSalePage } from '@/features/sales/NewSalePage'
 import { SaleDetailPage } from '@/features/sales/SaleDetailPage'
 import { SalesPage } from '@/features/sales/SalesPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
-import { NotBuiltYet } from '@/features/placeholder/NotBuiltYet'
 import { PrivacyPage } from '@/features/placeholder/PrivacyPage'
 import { supabaseConfigured } from '@/lib/supabase'
 import { RequireAuth, RequireBusiness, RequirePlatformAdmin } from './guards'
@@ -46,10 +47,14 @@ export default function App() {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/invite" element={<AcceptInvitePage />} />
+            <Route path="/demo" element={<DemoPage />} />
 
             <Route element={<RequireAuth />}>
               <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/businesses" element={<SelectBusinessPage />} />
+              <Route element={<RequirePlatformAdmin />}>
+                <Route path="/admin" element={<AdminPage />} />
+              </Route>
               <Route element={<RequireBusiness />}>
                 <Route element={<AppShell />}>
                   <Route index element={<OverviewPage />} />
@@ -68,9 +73,6 @@ export default function App() {
                   <Route path="reports" element={<ReportsPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                   <Route path="profile" element={<ProfilePage />} />
-                  <Route element={<RequirePlatformAdmin />}>
-                    <Route path="admin" element={<NotBuiltYet title="Platform administration" phase={4} />} />
-                  </Route>
                 </Route>
               </Route>
             </Route>

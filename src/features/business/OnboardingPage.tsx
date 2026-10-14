@@ -32,7 +32,7 @@ const schema = z.object({
 })
 
 export function OnboardingPage() {
-  const { session, profile, isPlatformAdmin } = useAuth()
+  const { session, profile, isPlatformAdmin, isAnonymous } = useAuth()
   const { select, reload, businesses } = useBusiness()
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
@@ -49,6 +49,7 @@ export function OnboardingPage() {
   })
   const category = watch('category')
 
+  if (isAnonymous) return <Navigate to="/demo" replace />
   // One trial business per account (also enforced by the database).
   if (profile?.trial_used_at && !isPlatformAdmin) {
     return (

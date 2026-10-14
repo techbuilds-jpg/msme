@@ -61,8 +61,22 @@ Legend: ✅ done and tested · 🟡 done, not yet tested end-to-end in the brows
 - Note: export permission controls the *download* and is audited; anyone who can view a report can still read it on screen.
 
 ## Phase 4 — Trial & demo
-- ⬜ Contact-us / consultation request, upgrade interest · ⬜ Demo sandbox (anonymous sign-in, seeded, auto-deleted by pg_cron)
-- ⬜ Platform admin: metrics, trial extension, suspension, feature flags, errors, audit events, support-access UI
+- ✅ Database (migrations 8–10, applied remotely): `request_consultation`, owner-issued support grants
+     (`grant_support_access` / `revoke_support_access`, audited `support_open`), demo sandbox (`start_demo` +
+     fictional seed data), hourly `pg_cron` job `cleanup-demos` (active on Supabase), admin functions
+     (`admin_overview`, `admin_list_businesses`, `admin_extend_trial`, `admin_set_suspension`, `admin_set_plan`,
+     consultations, platform settings), payments cascade on whole-tenant delete
+- ✅ SQL tests: 41 more assertions (197 total): demo isolation between visitors, anonymous users can't create real
+     businesses, cleanup after 48 h, support grants (read-only, scoped, revocable, audited), admin can't read tenant
+     records or tenant audit entries, suspension = read-only, plan/modules change, settings validation
+- ✅ Trial already enforced in the database since Phase 1 (read-only after expiry, limits); banner now has
+     **Contact us** and a limit-reached warning
+- 🟡 Settings → Data export (CSV per table, audited, works after expiry) and Settings → Support access
+- 🟡 Demo page `/demo` and "Try a demo" link — page verified in the browser; starting a demo needs
+     **Anonymous sign-ins enabled** in Supabase (currently off, the page shows "not available")
+- 🟡 Platform admin `/admin`: overview metrics, businesses (filters incl. upgrade interest / past retention; extend,
+     suspend, plan + limits + modules, all with reasons), inquiries, support access, app errors, admin audit, platform
+     settings (trial defaults, retention, contact details)
 
 ## Phase 5 — Testing & deployment
 - ⬜ Isolation tests against a Supabase branch through the REST API · ⬜ Responsive pass · ⬜ Production deploy

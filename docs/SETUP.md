@@ -15,6 +15,10 @@ Migrations in `supabase/migrations/` are already applied. For a new environment,
 > That's fine for testing with your own address. Before inviting real trial users, set up custom SMTP
 > (Auth → SMTP Settings); Resend or Brevo have free tiers.
 
+**Auth → Providers → Anonymous sign-ins**: turn **on** for the demo sandbox (`/demo`). Strongly recommended
+with it: **Auth → Attack Protection → CAPTCHA** (hCaptcha or Turnstile, both free) so bots can't create demos in bulk.
+Demos are also rate-limited in the database (3 per visitor per hour, 200 per hour overall) and deleted after 48 hours.
+
 ## 2. First sign-up and platform admin
 1. `npm run dev`, open http://localhost:5173/register, and register with your own email.
 2. Click the verification link, sign in, then complete onboarding.

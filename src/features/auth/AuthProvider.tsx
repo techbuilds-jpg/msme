@@ -15,6 +15,8 @@ interface AuthState {
   profile: Profile | null
   isPlatformAdmin: boolean
   emailVerified: boolean
+  /** Signed in anonymously for the demo sandbox. */
+  isAnonymous: boolean
   loading: boolean
   refresh: () => Promise<void>
   signOut: () => Promise<void>
@@ -59,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profile,
     isPlatformAdmin,
     emailVerified: !!session?.user.email_confirmed_at,
+    isAnonymous: !!session?.user.is_anonymous,
     loading,
     refresh: async () => {
       const { data } = await supabase.auth.getSession()

@@ -75,6 +75,7 @@ export function LoginPage() {
         <Input label="Password" type="password" autoComplete="current-password" required error={formState.errors.password?.message} {...register('password')} />
         <Button type="submit" className="w-full" loading={formState.isSubmitting}>Sign in</Button>
         <p className="text-center text-sm"><Link className="text-navy-500 underline" to="/forgot-password">Forgot password?</Link></p>
+        <p className="border-t border-slate-100 pt-4 text-center text-sm">Just looking? <Link className="font-medium text-navy-500 underline" to="/demo">Try a demo with sample data</Link></p>
       </form>
     </AuthLayout>
   )
